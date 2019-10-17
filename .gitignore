@@ -1,0 +1,8 @@
+/deps/
+/src/.objs
+/src/*.key
+/src/*.cer
+/src/DohService
+/src/DohService.zip
+/test/.objs
+/test/DohTest
