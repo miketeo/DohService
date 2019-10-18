@@ -673,8 +673,8 @@ static int process_request(nghttp2_session *session,
       }
     }
     if (!has_dns_param) {
-      zlog_warn(app->https_log_cat, "(%s) (DS-21024) Failed to perform DNS query: missing dns param in query", session_data->client_addr);
-      ret = 21024;
+      zlog_warn(app->https_log_cat, "(%s) (DS-21025) Failed to perform DNS query: missing dns param in query", session_data->client_addr);
+      ret = 21025;
       goto end;
     }
   }
