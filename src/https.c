@@ -658,7 +658,7 @@ static int process_request(nghttp2_session *session,
     }
 
     bool has_dns_param = false;
-    for (int param_index=0; param_index<params_count; param_index++) {
+    for (int param_index=0; !has_dns_param && param_index<params_count; param_index++) {
       if (0 == strcmp(params[param_index].key, "dns")) {
         has_dns_param = true;
 
