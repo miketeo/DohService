@@ -222,7 +222,7 @@ static void resolve_callback(void* mydata, int rcode, void* packet, int packet_l
         request->reply_buf[1] = request->request_buf[1];
 
         uint16_t answers_count = (request->reply_buf[6]<<8 | request->reply_buf[7]);
-        zlog_info(request->app->resolver_log_cat, "(%s) %s %s resolved with %u answers", request->client_addr, request->request_type, request->request_name, answers_count);
+        zlog_info(request->app->resolver_log_cat, "(%s) Replying %s %s with %u answers", request->client_addr, request->request_type, request->request_name, answers_count);
 
         https_send_reply(request->app, request);
       } else {
