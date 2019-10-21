@@ -15,7 +15,7 @@ dist: DohService
 	zip -j DohService.zip DohService log.conf ../deps/lib/libjemalloc.so
 
 clean:
-	@rm -fr .objs docs DohService
+	@rm -fr .objs docs DohService DohService.zip
 
 doc:
 	@doxygen
