@@ -1,8 +1,19 @@
-#include "includes.h"
+/*
+ * Copyright (c) 2019 Michael Teo <miketeo@mikteo.net>
+ *
+ * DohService is provided 'as-is', without any express or implied warranty. In no event will the author be held liable for any damages arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 // A significant portion of the code in this file was adapted from
 // https://github.com/nghttp2/nghttp2/blob/master/examples/libevent-server.c
 // Its copyright notice is as follows:
+
 /*
  * nghttp2 - HTTP/2 C Library
  *
@@ -27,6 +38,8 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+#include "includes.h"
 
 #define OUTPUT_WOULDBLOCK_THRESHOLD (1 << 16)
 #define ARRLEN(x) (sizeof(x) / sizeof(x[0]))
