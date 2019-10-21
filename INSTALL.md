@@ -5,7 +5,7 @@ DohService was developed on Ubuntu 16.04 LTS (x64). It should compile on other l
 
 Install additional dependencies for development as superuser
 ```
-$> apt-get install libz-dev libbz2-dev automake autoconf bison flex make wget
+$> apt-get install libz-dev libbz2-dev libexpat1-dev automake autoconf bison flex make wget
 ```
 
 Make the deps folder under the project root if it does not exist
