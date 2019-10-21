@@ -1,6 +1,8 @@
 Building
 ========
 
+DohService was developed on Ubuntu 16.04 LTS (x64). It should compile on other later Ubuntu releases.
+
 Install additional dependencies for development as superuser
 ```
 $> apt-get install libz-dev libbz2-dev automake autoconf bison flex make wget
@@ -16,12 +18,14 @@ Then go to deps-src and build the rest of the dependencies as developer user
 $> cd deps-src && make
 ```
 
+If you encounter issues, you may file a ticket on the project website at github,
+or check the [FAQs.md](FAQs.md) file.
+
 Getting SSL certificate
 =======================
 
-I use acme.sh from [acme.sh)(https://github.com/Neilpang/acme.sh) to prepare the SSL certificate
-on my local development node. You can also use [https://certbot.eff.org/](certbot) for your public
-DOH service.
+I use [acme.sh](https://github.com/Neilpang/acme.sh) to prepare the SSL certificate
+on my local development node. You can also use [https://certbot.eff.org/](certbot) to get a free SSL certificate for your public DOH service.
 
 Running
 =======
@@ -32,6 +36,8 @@ and your full-chain cert file (containing both the CA and SSL certificates).
 ```
 $> ./DohService --port=10443 --dns=8.8.8.8,8.8.4.4 <keyfile> <certfile>
 ```
+
+On FireFox and other DOH-supported web browsers, you can then use this URL **https://[hostname]:10443/dns-query** to resolve the hostnames in the URLs against the DohService.
 
 Testing
 =======
