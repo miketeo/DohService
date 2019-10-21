@@ -1,4 +1,4 @@
-all: ../deps/lib/libjemalloc.a ../deps/lib/libssl.a ../deps/lib/libzlog.a ../deps/lib/libcares.a ../deps/lib/libevent.a ../deps/lib/libunbound.a ../deps/lib/libnghttp2.a ../deps/lib/libcurl.a ../deps/bin/doh
+all: ../deps/lib/libjemalloc.a ../deps/lib/libssl.a ../deps/lib/libzlog.a ../deps/lib/libcares.a ../deps/lib/libevent.a ../deps/lib/libunbound.a ../deps/lib/libnghttp2.a ../deps/lib/libcurl.a
 
 clean:
 
@@ -27,7 +27,7 @@ distclean:
 
 ../deps/lib/libevent.a:
 	wget -q -O - https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz | tar -xvz
-	cd libevent-2.1.11-stable && ./configure --prefix=$(CURDIR)/../deps && make all install
+	cd libevent-2.1.11-stable && ./configure --prefix=$(CURDIR)/../deps CPPFLAGS="-I$(CURDIR)/../deps/include" LDFLAGS="-L$(CURDIR)/../deps/lib" && make all install
 	@rm -fr libevent-2.1.11-stable
 
 ../deps/lib/libunbound.a:
