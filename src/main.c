@@ -9,7 +9,7 @@
  * 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
- 
+
 #include <signal.h>
 #include "includes.h"
 #include "argtable3.h"
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   struct arg_str *cert_file = arg_str0(NULL, NULL, "CERTFILE", "Full path to the SSL cert file");
   struct arg_str *dns_csv = arg_str0(NULL, "dns", "DNS-SERVERS", "Comma-separated list of upstream DNS servers. Default: 8.8.8.8,8.8.4.4");
   struct arg_int *port = arg_int0(NULL, "port", "PORT", "HTTPS port");
-  struct arg_lit *help = arg_lit0("-h", "help", "display this help and exit");
+  struct arg_lit *help = arg_lit0("h", "help", "display this help and exit");
   struct arg_lit *version = arg_lit0(NULL, "version", "display version information and exit");
   struct arg_end *end = arg_end(20);
   void* argtable[] = { port, dns_csv, help, version, key_file, cert_file, end };
@@ -62,11 +62,24 @@ int main(int argc, char *argv[]) {
   if (help->count > 0) {
     printf("Usage: " APP_NAME);
     arg_print_syntax(stdout, argtable, "\n");
+    arg_print_glossary(stdout, argtable, "  %-25s %s\n");
     goto end;
   }
 
   if (version->count > 0) {
     printf("%s version %s-%s built on %s\n", APP_NAME, APP_VERSION, GW_GIT_COMMIT, GW_BUILD_DATE);
+    goto end;
+  }
+
+  if (0 == strlen(key_file->sval[0])) {
+    printf("Error: Missing KEYFILE argument\n%s", APP_NAME);
+    arg_print_syntax(stdout, argtable, "\n");
+    goto end;
+  }
+
+  if (0 == strlen(cert_file->sval[0])) {
+    printf("Error: Missing CERTFILE argument\n%s", APP_NAME);
+    arg_print_syntax(stdout, argtable, "\n");
     goto end;
   }
 
