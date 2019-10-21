@@ -18,6 +18,11 @@ Then go to deps-src and build the rest of the dependencies as developer user
 $> cd deps-src && make
 ```
 
+You can package DohService and all the required dependencies into a zip file (DohService.zip). Then, you can copy the DohService.zip file to the remote server and unzip it in the target folder.
+```
+$> cd deps-src && make dist
+```
+
 If you encounter issues, you may file a ticket on the project website at github,
 or check the [FAQs.md](FAQs.md) file.
 
