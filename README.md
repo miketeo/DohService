@@ -19,7 +19,7 @@ To build the DohService, please refer to the [INSTALL.md](INSTALL.md) file.
 Questions and Issues
 ====================
 
-Please check out the [FAQs.md](FAQs,md) or file a ticket on the issues section at the project web site on github.
+Please check out the [FAQs.md](FAQs.md) or file a ticket on the issues section at the project web site on github.
 
 License
 =======
