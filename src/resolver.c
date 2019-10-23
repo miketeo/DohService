@@ -9,7 +9,7 @@
  * 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
- 
+
 #include "includes.h"
 
 #ifndef ns_t_rrsig // ns_t_rrsig was not defined in my arpa/nameser.h
@@ -38,7 +38,7 @@ static struct dns_rr_type DNS_RR_TYPES[] = {
 };
 
 static const char* get_rrtype_name(uint16_t rrtype);
-static void resolve_callback(void* mydata, int rcode, void* packet, int packet_len, int sec, char* why_bogus, int a);
+static void resolve_callback(void* mydata, int rcode, void* packet, int packet_len, int sec, char* why_bogus, int was_ratelimited);
 static int copy_reply_without_rrsig(resolver_request_t *request, const uint8_t *reply, int reply_len);
 
 int resolver_init(app_t *app, const char *dns_csv) {
@@ -132,17 +132,23 @@ int resolver_resolve(app_t *app, resolver_request_t *request) {
   uint16_t rrtype = 0, rrclass = 0;
   for (int i=0; i<qdcount; i++) {
     if (i == 0) {
+      if (p_offset+4 > p_length) {
+        zlog_error(app->resolver_log_cat, "(DS-30210) (%s) DNS query packet from client is malformed: incomplete query record for '%s'", request->client_addr, request->request_name);
+        ret = 30210;
+        goto end;
+      }
+
       int enc_len = ns_name_uncompress(p, p+p_length, p+p_offset, request->request_name, sizeof(request->request_name));
       if (enc_len < 0) {
-        zlog_error(app->resolver_log_cat, "(DS-30204) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
-        ret = 30204;
+        zlog_error(app->resolver_log_cat, "(DS-30211) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
+        ret = 30211;
         goto end;
       }
       p_offset += enc_len;
 
       if (p_offset+4 > p_length) {
-        zlog_error(app->resolver_log_cat, "(DS-30205) (%s) DNS query packet from client is malformed: incomplete query record for '%s'", request->client_addr, request->request_name);
-        ret = 30205;
+        zlog_error(app->resolver_log_cat, "(DS-30212) (%s) DNS query packet from client is malformed: incomplete query record for '%s'", request->client_addr, request->request_name);
+        ret = 30212;
         goto end;
       }
 
@@ -151,18 +157,24 @@ int resolver_resolve(app_t *app, resolver_request_t *request) {
       p_offset += 4;
     } else {
       // Ignore other query records
+      if (p_offset+4 > p_length) {
+        zlog_error(app->resolver_log_cat, "(DS-30220) (%s) DNS query packet from client is malformed: incomplete query record for '%s'", request->client_addr, request->request_name);
+        ret = 30220;
+        goto end;
+      }
+
       const uint8_t *ptr = p+p_offset;
       if (0 != ns_name_skip(&ptr, p+p_length)) {
-        zlog_error(app->resolver_log_cat, "(DS-30206) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
-        ret = 30206;
+        zlog_error(app->resolver_log_cat, "(DS-30221) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
+        ret = 30221;
         goto end;
       }
       p_offset = ptr - p;
       p_offset += 4; // skip rrtype and rrclass fields
 
       if (p_offset+4 > p_length) {
-        zlog_error(app->resolver_log_cat, "(DS-30207) (%s) DNS query packet from client is malformed: incomplete query record", request->client_addr);
-        ret = 30207;
+        zlog_error(app->resolver_log_cat, "(DS-30222) (%s) DNS query packet from client is malformed: incomplete query record", request->client_addr);
+        ret = 30222;
         goto end;
       }
     }
@@ -178,14 +190,14 @@ int resolver_resolve(app_t *app, resolver_request_t *request) {
 
     const uint8_t *ptr = p+p_offset;
     if (0 != ns_name_skip(&ptr, p+p_length)) {
-      zlog_error(app->resolver_log_cat, "(DS-30208) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
-      ret = 30208;
+      zlog_error(app->resolver_log_cat, "(DS-30230) (%s) DNS query packet from client is malformed: unable to parse query name", request->client_addr);
+      ret = 30230;
       goto end;
     }
     p_offset = ptr - p;
     if (p_offset + 8 > p_length) {
-      zlog_error(app->resolver_log_cat, "(DS-30209) (%s) DNS query packet from client is malformed: incomplete AR", request->client_addr);
-      ret = 30209;
+      zlog_error(app->resolver_log_cat, "(DS-30231) (%s) DNS query packet from client is malformed: incomplete AR", request->client_addr);
+      ret = 30231;
       goto end;
     }
 
@@ -194,8 +206,8 @@ int resolver_resolve(app_t *app, resolver_request_t *request) {
     p_offset += rdlength;
 
     if (p_offset > p_length) {
-      zlog_error(app->resolver_log_cat, "(DS-30210) (%s) DNS query packet from client is malformed: incomplete AR", request->client_addr);
-      ret = 30210;
+      zlog_error(app->resolver_log_cat, "(DS-30232) (%s) DNS query packet from client is malformed: incomplete AR", request->client_addr);
+      ret = 30232;
       goto end;
     }
   }
@@ -209,7 +221,7 @@ int resolver_resolve(app_t *app, resolver_request_t *request) {
   return ret;
 }
 
-static void resolve_callback(void* mydata, int rcode, void* packet, int packet_len, int sec, char* why_bogus, int a) {
+static void resolve_callback(void* mydata, int rcode, void* packet, int packet_len, int sec, char* why_bogus, int was_ratelimited) {
   resolver_request_t *request = (resolver_request_t *)mydata;
   request->request_id = INVALID_REQUEST_ID;
 
@@ -297,16 +309,21 @@ static int copy_reply_without_rrsig(resolver_request_t *request, const uint8_t *
   out_offset = 12;
 
   for (int i=0; i<qdcount; i++) {
+    if (p_offset+4 > p_length) {
+      zlog_error(app->resolver_log_cat, "(DS-30410) (%s) Failed to parse DNS reply for %s '%s': incomplete query record", request->client_addr, request->request_type, request->request_name);
+      ret = 30410;
+      goto end;
+    }
     const uint8_t *ptr = p + p_offset;
     if (ns_name_skip(&ptr, p+p_length) != 0) {
-      zlog_error(app->resolver_log_cat, "(DS-30403) (%s) Failed to parse DNS reply for %s '%s': incomplete query record", request->client_addr, request->request_type, request->request_name);
-      ret = 30403;
+      zlog_error(app->resolver_log_cat, "(DS-30411) (%s) Failed to parse DNS reply for %s '%s': incomplete query record", request->client_addr, request->request_type, request->request_name);
+      ret = 30411;
       goto end;
     }
     size_t enc_len = ptr - p - p_offset;
     if (p_offset+enc_len+4 > p_length) {
-      zlog_error(app->resolver_log_cat, "(DS-30404) (%s) Failed to parse DNS reply for %s '%s': incomplete query record", request->client_addr, request->request_type, request->request_name);
-      ret = 30404;
+      zlog_error(app->resolver_log_cat, "(DS-30412) (%s) Failed to parse DNS reply for %s '%s': incomplete query record", request->client_addr, request->request_type, request->request_name);
+      ret = 30412;
       goto end;
     }
     memcpy(out+out_offset, p+p_offset, enc_len+4);
@@ -316,25 +333,29 @@ static int copy_reply_without_rrsig(resolver_request_t *request, const uint8_t *
 
   uint16_t adjusted_ancount = 0;
   for (int i=0; i<ancount; i++) {
-    const uint8_t *ptr = p + p_offset;
-    if (ns_name_skip(&ptr, p+p_length) != 0) {
-      zlog_error(app->resolver_log_cat, "(DS-30405) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
-      ret = 30405;
+    if (p_offset+10 > p_length) {
+      zlog_error(app->resolver_log_cat, "(DS-30420) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
+      ret = 30420;
       goto end;
     }
-
+    const uint8_t *ptr = p + p_offset;
+    if (ns_name_skip(&ptr, p+p_length) != 0) {
+      zlog_error(app->resolver_log_cat, "(DS-30421) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
+      ret = 30421;
+      goto end;
+    }
     size_t enc_len = ptr - p - p_offset;
     if (p_offset+enc_len+10 > p_length) {
-      zlog_error(app->resolver_log_cat, "(DS-30406) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
-      ret = 30406;
+      zlog_error(app->resolver_log_cat, "(DS-30422) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
+      ret = 30422;
       goto end;
     }
 
     uint16_t rrtype = (p[p_offset+enc_len]<<8 | p[p_offset+enc_len+1]);
     uint16_t rdlength = (p[p_offset+enc_len+8]<<8 | p[p_offset+enc_len+9]);
     if (p_offset+enc_len+10+rdlength > p_length) {
-      zlog_error(app->resolver_log_cat, "(DS-30407) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
-      ret = 30407;
+      zlog_error(app->resolver_log_cat, "(DS-30423) (%s) Failed to parse DNS reply for %s '%s': incomplete answer record", request->client_addr, request->request_type, request->request_name);
+      ret = 30423;
       goto end;
     }
 
