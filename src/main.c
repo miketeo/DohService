@@ -44,11 +44,12 @@ int main(int argc, char *argv[]) {
   struct arg_str *key_file = arg_str0(NULL, NULL, "KEYFILE", "Full path to the SSL key file");
   struct arg_str *cert_file = arg_str0(NULL, NULL, "CERTFILE", "Full path to the SSL cert file");
   struct arg_str *dns_csv = arg_str0(NULL, "dns", "DNS-SERVERS", "Comma-separated list of upstream DNS servers. Default: 8.8.8.8,8.8.4.4");
+  struct arg_str *anchor = arg_str0(NULL, "anchor", "ANCHOR-FILE", "Full path to the root anchor file for DNSSEC validation");
   struct arg_int *port = arg_int0(NULL, "port", "PORT", "HTTPS port");
   struct arg_lit *help = arg_lit0("h", "help", "display this help and exit");
   struct arg_lit *version = arg_lit0(NULL, "version", "display version information and exit");
   struct arg_end *end = arg_end(20);
-  void* argtable[] = { port, dns_csv, help, version, key_file, cert_file, end };
+  void* argtable[] = { port, dns_csv, anchor, help, version, key_file, cert_file, end };
   if (arg_nullcheck(argtable) != 0) {
     // NULL entries were detected, some allocations must have failed
     printf("(DS-19901) Failed to initialize application.\n");
@@ -111,7 +112,7 @@ int main(int argc, char *argv[]) {
   if (NULL == app.ev_base) {
     zlog_fatal(app.main_log_cat, "(DS-19909) Failed to initialize service");
     ret = EXIT_FAILURE;
-    goto end3;
+    goto end2;
   }
 
   sigint_ev = evsignal_new(app.ev_base, SIGINT, sigint_eventcb, &app);
@@ -123,10 +124,10 @@ int main(int argc, char *argv[]) {
   } else {
     zlog_fatal(app.main_log_cat, "(DS-19911) Failed to initialize application. Please contact vendor for support.");
     ret = EXIT_FAILURE;
-    goto end3;
+    goto end2;
   }
 
-  if (0 == resolver_init(&app, dns_csv->sval[0]) && 0 == https_init(&app, port->ival[0], key_file->sval[0], cert_file->sval[0])) {
+  if (0 == resolver_init(&app, dns_csv->sval[0], anchor->sval[0]) && 0 == https_init(&app, port->ival[0], key_file->sval[0], cert_file->sval[0])) {
     //
     // Loop forever until we terminate
     //
@@ -137,7 +138,7 @@ int main(int argc, char *argv[]) {
   https_cleanup(&app);
   resolver_cleanup(&app);
 
-  end3:
+end2:
   // Cleanup libevent stuff
   if (NULL != sigterm_ev) {
     evsignal_del(sigterm_ev);
@@ -154,7 +155,6 @@ int main(int argc, char *argv[]) {
   }
 
   // Bye-bye
-  end2:
   zlog_notice(app.main_log_cat, "Service will now quit. This is the last log message.");
   zlog_fini();
 

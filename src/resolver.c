@@ -41,36 +41,46 @@ static const char* get_rrtype_name(uint16_t rrtype);
 static void resolve_callback(void* mydata, int rcode, void* packet, int packet_len, int sec, char* why_bogus, int was_ratelimited);
 static int copy_reply_without_rrsig(resolver_request_t *request, const uint8_t *reply, int reply_len);
 
-int resolver_init(app_t *app, const char *dns_csv) {
+int resolver_init(app_t *app, const char *dns_csv, const char *anchor_file) {
   int ret = 0;
   char *dns_s = NULL;
 
   app->ub_ctx = ub_ctx_create_event(app->ev_base);
   if (NULL == app->ub_ctx) {
     zlog_error(app->resolver_log_cat, "(DS-30101) Failed init application: unable to initialize unbound context");
-    ret = 31001;
+    ret = 30101;
     goto end;
   }
 
-  dns_s = strdup(dns_csv);
-  if (NULL == dns_s) {
-    zlog_error(app->resolver_log_cat, "(DS-30102) Failed init application: unable to allocate memory");
-    ret = 31002;
-    goto end;
-  }
-
-  char *dns_p = NULL;
-  char *dns = strtok_r(dns_s, ",", &dns_p);
-  while (NULL != dns) {
-    int err = ub_ctx_set_fwd(app->ub_ctx, dns);
-    if (0 != err) {
-      zlog_error(app->resolver_log_cat, "(DS-30103) Failed to init application: unable to set add upstream DNS '%s': %s", dns, ub_strerror(err));
-      ret = 31003;
+  if (NULL != anchor_file && strlen(anchor_file) > 0) {
+    int err = 0;
+    if (0 != (err = ub_ctx_add_ta_file(app->ub_ctx, anchor_file))) {
+      zlog_error(app->resolver_log_cat, "(DS-30110) Failed init application: unable to set anchor file '%s': %s", anchor_file, ub_strerror(err));
+      ret = 30110;
       goto end;
-    } else {
-      zlog_notice(app->resolver_log_cat, "Upstream DNS server added: %s", dns);
     }
-    dns = strtok_r(NULL, ",", &dns_p);
+    zlog_notice(app->resolver_log_cat, "Root anchor file '%s' read. DNS entries will be validated via DNSSEC.", anchor_file);
+  } else {
+    dns_s = strdup(dns_csv);
+    if (NULL == dns_s) {
+      zlog_error(app->resolver_log_cat, "(DS-30120) Failed init application: unable to allocate memory");
+      ret = 30120;
+      goto end;
+    }
+
+    char *dns_p = NULL;
+    char *dns = strtok_r(dns_s, ",", &dns_p);
+    while (NULL != dns) {
+      int err = ub_ctx_set_fwd(app->ub_ctx, dns);
+      if (0 != err) {
+        zlog_error(app->resolver_log_cat, "(DS-30121) Failed to init application: unable to set add upstream DNS '%s': %s", dns, ub_strerror(err));
+        ret = 30121;
+        goto end;
+      } else {
+        zlog_notice(app->resolver_log_cat, "Upstream DNS server added: %s", dns);
+      }
+      dns = strtok_r(NULL, ",", &dns_p);
+    }
   }
 
   zlog_info(app->resolver_log_cat, "Unbound context initialized.");

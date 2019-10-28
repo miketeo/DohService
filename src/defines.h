@@ -9,12 +9,12 @@
  * 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
- 
+
 #ifndef DEFINES_H
 #define DEFINES_H
 
 #define APP_NAME "DohService"
-#define APP_VERSION "1.0.0"
+#define APP_VERSION "1.1.0"
 #define APP_LOG_CONFIG_FILENAME "log.conf"
 
 #define RRTYPE_MAX_LEN 20
@@ -79,8 +79,9 @@ int https_send_reply(app_t *app, resolver_request_t *request);
  *
  * Implemented in resolver.c
  * @param dns_csv comma-separated list of IP addresses defining the list of upstream DNS servers to use for DNS resolution
+ * @param anchor_file if not NULL or empty string, it must point to the path of the root anchor file
  */
-int resolver_init(app_t *app, const char *dns_csv);
+int resolver_init(app_t *app, const char *dns_csv, const char *anchor_file);
 
 /**
  * Cleanup the unbound context that has been initialized in resolver_init()

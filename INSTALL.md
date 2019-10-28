@@ -5,7 +5,7 @@ DohService was developed on Ubuntu 16.04 LTS (x64). It should compile on other l
 
 Install additional dependencies for development as superuser
 ```
-$> apt-get install libz-dev libbz2-dev libexpat1-dev automake autoconf bison flex make wget
+$> apt-get install libz-dev libbz2-dev libexpat1-dev automake autoconf bison flex make wget unbound-anchor
 ```
 
 Make the deps folder under the project root if it does not exist
@@ -45,6 +45,14 @@ Remeber to replace **keyfile** and **certfile** with the correct paths to your S
 and your full-chain SSL cert file (containing both the CA and SSL certificates).
 ```
 $> ./DohService --port=10443 --dns=8.8.8.8,8.8.4.4 <keyfile> <certfile>
+```
+
+If you wish to use DohService as DNSSEC-validating service, you will need to get the root anchor file before running DohService.
+The location of the anchor file needs to be passed to the DohService using **--anchor** parameter.
+Note that when the **--anchor** parameter is used, the **--dns** parameter is not applicable and will be ignored. 
+```
+$> unbound-anchor -a ./root.key
+$> ./DohService --port=10443 --anchor=./root.key <keyfile> <certfile>
 ```
 
 On FireFox and other DOH-supported web browsers, you can then fill in this URL **https://[hostname]:10443/dns-query** in the DOH URL field on the configuration settings.
