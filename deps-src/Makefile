@@ -11,36 +11,36 @@ distclean:
 	@rm -fr jemalloc-5.2.1
 
 ../deps/lib/libssl.a:
-	wget -q -O - https://www.openssl.org/source/openssl-1.1.0l.tar.gz | tar -xvz
-	cd openssl-1.1.0l && ./config --prefix=$(CURDIR)/../deps --openssldir=$(CURDIR)/../deps && make all install
-	@rm -fr openssl-1.1.0l
+	wget -q -O - https://www.openssl.org/source/openssl-1.1.1i.tar.gz | tar -xvz
+	cd openssl-1.1.1i && ./config --prefix=$(CURDIR)/../deps --openssldir=$(CURDIR)/../deps && make all install
+	@rm -fr openssl-1.1.1i
 
 ../deps/lib/libzlog.a:
-	wget -q -O - https://github.com/HardySimpson/zlog/archive/1.2.14.tar.gz | tar -xvz
-	cd zlog-1.2.14 && make PREFIX=$(CURDIR)/../deps all install
-	@rm -fr zlog-1.2.14
+	wget -q -O - https://github.com/HardySimpson/zlog/archive/1.2.15.tar.gz | tar -xvz
+	cd zlog-1.2.15 && make PREFIX=$(CURDIR)/../deps all install
+	@rm -fr zlog-1.2.15
 
 ../deps/lib/libcares.a:
-	wget -q -O - https://github.com/c-ares/c-ares/releases/download/cares-1_15_0/c-ares-1.15.0.tar.gz | tar -xvz
-	cd c-ares-1.15.0 && ./configure --prefix=$(CURDIR)/../deps --disable-nonblocking && make all install
-	@rm -fr c-ares-1.15.0
+	wget -q -O - https://github.com/c-ares/c-ares/releases/download/cares-1_17_1/c-ares-1.17.1.tar.gz | tar -xvz
+	cd c-ares-1.17.1 && ./configure --prefix=$(CURDIR)/../deps --disable-nonblocking && make all install
+	@rm -fr c-ares-1.17.1
 
 ../deps/lib/libevent.a:
-	wget -q -O - https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz | tar -xvz
-	cd libevent-2.1.11-stable && ./configure --prefix=$(CURDIR)/../deps CPPFLAGS="-I$(CURDIR)/../deps/include" LDFLAGS="-L$(CURDIR)/../deps/lib" && make all install
-	@rm -fr libevent-2.1.11-stable
+	wget -q -O - https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz | tar -xvz
+	cd libevent-2.1.12-stable && ./configure --prefix=$(CURDIR)/../deps CPPFLAGS="-I$(CURDIR)/../deps/include" LDFLAGS="-L$(CURDIR)/../deps/lib" && make all install
+	@rm -fr libevent-2.1.12-stable
 
 ../deps/lib/libunbound.a:
-	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.9.4.tar.gz | tar -xvz
-	cd unbound-1.9.4 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
-	@rm -fr unbound-1.9.4
+	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.13.0.tar.gz | tar -xvz
+	cd unbound-1.13.0 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
+	@rm -fr unbound-1.13.0
 
 ../deps/lib/libnghttp2.a:
-	wget -q -O - https://github.com/nghttp2/nghttp2/releases/download/v1.39.2/nghttp2-1.39.2.tar.bz2 | tar -xvj
-	cd nghttp2-1.39.2 && ./configure --prefix=$(CURDIR)/../deps --enable-lib-only && make all install
-	@rm -fr nghttp2-1.39.2
+	wget -q -O - https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.bz2 | tar -xvj
+	cd nghttp2-1.43.0 && ./configure --prefix=$(CURDIR)/../deps --enable-lib-only && make all install
+	@rm -fr nghttp2-1.43.0
 
 ../deps/lib/libcurl.a:
-	wget -q -O - https://curl.haxx.se/download/curl-7.66.0.tar.gz | tar -xvz
-	cd curl-7.66.0 && ./configure --prefix=$(CURDIR)/../deps --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-nghttp2=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps && make all install
-	@rm -fr curl-7.66.0
+	wget -q -O - https://curl.haxx.se/download/curl-7.75.0.tar.gz | tar -xvz
+	cd curl-7.75.0 && ./configure --prefix=$(CURDIR)/../deps --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-nghttp2=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps && make all install
+	@rm -fr curl-7.75.0
