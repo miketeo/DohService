@@ -1,7 +1,7 @@
 Building
 ========
 
-DohService was developed on Ubuntu 16.04 LTS (x64). It should compile on other later Ubuntu releases.
+DohService was developed on Ubuntu 16.04 and 20.04 LTS (x64). It should compile on other later Ubuntu releases.
 
 Install additional dependencies for development as superuser
 ```
