@@ -11,9 +11,9 @@ distclean:
 	@rm -fr jemalloc-5.2.1
 
 ../deps/lib/libssl.a:
-	wget -q -O - https://www.openssl.org/source/openssl-1.1.1i.tar.gz | tar -xvz
-	cd openssl-1.1.1i && ./config --prefix=$(CURDIR)/../deps --openssldir=$(CURDIR)/../deps && make all install
-	@rm -fr openssl-1.1.1i
+	wget -q -O - https://www.openssl.org/source/openssl-1.1.1t.tar.gz | tar -xvz
+	cd openssl-1.1.1t && ./config --prefix=$(CURDIR)/../deps --openssldir=$(CURDIR)/../deps && make all install
+	@rm -fr openssl-1.1.1t
 
 ../deps/lib/libzlog.a:
 	wget -q -O - https://github.com/HardySimpson/zlog/archive/1.2.15.tar.gz | tar -xvz
@@ -31,9 +31,9 @@ distclean:
 	@rm -fr libevent-2.1.12-stable
 
 ../deps/lib/libunbound.a:
-	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.13.0.tar.gz | tar -xvz
-	cd unbound-1.13.0 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
-	@rm -fr unbound-1.13.0
+	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.17.1.tar.gz | tar -xvz
+	cd unbound-1.17.1 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
+	@rm -fr unbound-1.17.1
 
 ../deps/lib/libnghttp2.a:
 	wget -q -O - https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.bz2 | tar -xvj
