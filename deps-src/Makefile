@@ -6,14 +6,14 @@ distclean:
 	- rm -fr ../deps/*
 
 ../deps/lib/libjemalloc.a:
-	wget -q -O - https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2 | tar -xvj
-	cd jemalloc-5.2.1 && ./configure --prefix=$(CURDIR)/../deps --disable-cxx && make all install
-	@rm -fr jemalloc-5.2.1
+	wget -q -O - https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2 | tar -xvj
+	cd jemalloc-5.3.0 && ./configure --prefix=$(CURDIR)/../deps --disable-cxx && make all install
+	@rm -fr jemalloc-5.3.0
 
 ../deps/lib/libssl.a:
-	wget -q -O - https://www.openssl.org/source/openssl-1.1.1t.tar.gz | tar -xvz
-	cd openssl-1.1.1t && ./config --prefix=$(CURDIR)/../deps --openssldir=$(CURDIR)/../deps && make all install
-	@rm -fr openssl-1.1.1t
+	wget -q -O - https://www.openssl.org/source/openssl-3.1.2.tar.gz | tar -xvz
+	cd openssl-3.1.2 && ./config no-tests --prefix=$(CURDIR)/../deps --libdir=lib --openssldir=$(CURDIR)/../deps && make all install
+	@rm -fr openssl-3.1.2
 
 ../deps/lib/libzlog.a:
 	wget -q -O - https://github.com/HardySimpson/zlog/archive/1.2.15.tar.gz | tar -xvz
@@ -31,16 +31,16 @@ distclean:
 	@rm -fr libevent-2.1.12-stable
 
 ../deps/lib/libunbound.a:
-	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.17.1.tar.gz | tar -xvz
-	cd unbound-1.17.1 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
-	@rm -fr unbound-1.17.1
+	wget -q -O - https://www.nlnetlabs.nl/downloads/unbound/unbound-1.18.0.tar.gz | tar -xvz
+	cd unbound-1.18.0 && ./configure --prefix=$(CURDIR)/../deps --disable-flto --enable-pthreads --enable-event-api --with-libevent=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps --with-libunbound-only && make all install
+	@rm -fr unbound-1.18.0
 
 ../deps/lib/libnghttp2.a:
-	wget -q -O - https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.bz2 | tar -xvj
-	cd nghttp2-1.43.0 && ./configure --prefix=$(CURDIR)/../deps --enable-lib-only && make all install
-	@rm -fr nghttp2-1.43.0
+	wget -q -O - https://github.com/nghttp2/nghttp2/releases/download/v1.55.1/nghttp2-1.55.1.tar.bz2 | tar -xvj
+	cd nghttp2-1.55.1 && ./configure --prefix=$(CURDIR)/../deps --enable-lib-only && make all install
+	@rm -fr nghttp2-1.55.1
 
 ../deps/lib/libcurl.a:
-	wget -q -O - https://curl.haxx.se/download/curl-7.75.0.tar.gz | tar -xvz
-	cd curl-7.75.0 && ./configure --prefix=$(CURDIR)/../deps --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-nghttp2=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps && make all install
-	@rm -fr curl-7.75.0
+	wget -q -O - https://curl.haxx.se/download/curl-8.2.1.tar.gz | tar -xvz
+	cd curl-8.2.1 && ./configure --prefix=$(CURDIR)/../deps --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-nghttp2=$(CURDIR)/../deps --with-ssl=$(CURDIR)/../deps && make all install
+	@rm -fr curl-8.2.1
